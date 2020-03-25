@@ -1,23 +1,31 @@
 <?php
-session_start();
+    session_start();
+    if(!isset($_SESSION['login'])){
+        header("Location:login.php");
+    }
     $r = array();
+    $count = 0;
     $dept = null;
     try{
 	$dbhandler = new PDO('mysql:host=127.0.0.1;dbname=hammer','root','');
 	$dbhandler->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
-        if(isset($_POST['username']) && isset($_POST['password'])){
-            $query = $dbhandler->prepare("select * from dbapp_login where username = ? and password = ?");
-            $query->execute(array($_POST['username'],$_POST['password']));
-            $count = $query->rowcount();
-            if($count == 0 || !isset($_SESSION['login'])){
-                header("Location: login.php");
+        if(isset($_POST['event'])){
+            if(strcmp($_POST['event'], 'all') === 0 ){
+                $query = $dbhandler->query("select * from dbapp_participant ");
+                $r = $query->fetchAll(PDO::FETCH_ASSOC);
+                $count = $query->rowcount();
             }
             else{
-                $_SESSION['login'] = true;
+                $query = $dbhandler->query("select event_id from dbapp_event where event_name='".$_POST['event']."'");
+                $r = $query->fetchAll(PDO::FETCH_ASSOC);
+                $r = $r[0];
+                $query = $dbhandler->query("select * from dbapp_participant where event_id_id='".$r['event_id']."'");
+                $r = $query->fetchAll(PDO::FETCH_ASSOC);
+                $count = $query->rowcount();
             }
         }
         else{
-            echo "nothing";
+            //echo "nothing";
         }
     }
     catch(PDOException $e){
@@ -36,24 +44,87 @@ session_start();
 <body>
 	<header>
 		<div class="header">
-			<a href="demo.html" class="logo">TechFest<font color="#ff0066">.</font></a>
+            <a href="demo.php" class="logo">TechFest<font color="#ff0066">.</font></a>
 			<div class="header-right">
-				<a href="demo.html#Team" class="an">Team</a>
-				<a href="demo.html#Sponser" class="an">Sponser</a>
-				<a href="demo.html#Department" class="an">Department</a>
-				<a href="demo.html#AboutUs" class="an">About Us</a>
-				<a href="#ContactUs" class="an">Contact Us</a>
+                <a href="demo.php#Team" class="an">Team</a>
+                <a href="demo.php#Sponser" class="an">Sponser</a>
+                <a href="demo.php#Department" class="an">Department</a>
+                <a href="demo.php#AboutUs" class="an">About Us</a>
+		 <a href="#ContactUs" class="an">Contact Us</a>
 			</div>
 		</div>
 	</header>
 	<hr>
-        <form action="intermediate.php?name=registerevent" method="POST">
+    <?php if (isset($_POST['show'])){?>
+        <?php if($count === 0){?>
+        <div class="container">
+            <div class="title">No Registrations Done for this event</div>
+        </div>
+        <?php }else{?>  
+        <div class="container">
+            <div class="heading">
+                Registrations for selected Event/s
+            </div>
+            <table>
+                <tr>
+                    <td>Participant id</td>
+                    <td>First Name</td>
+                    <td>Last Name</td>
+                    <td>Birth Date</td>
+                    <td>Gender</td>
+                    <td>Department</td>
+                    <td>College Name</td>
+                    <td>Mobile Number</td>
+                    <td>Email ID</td>
+                </tr>
+                <?php for($i = 0; $i < $count; $i++){ $temp = $r[$i];?>
+                    <tr>
+                        <td><?php echo $temp['participant_id'];?></td>
+                        <td><?php echo $temp['firstname'];?></td>
+                        <td><?php echo $temp['lastname'];?></td>
+                        <td><?php echo $temp['birthdate'];?></td>
+                        <td><?php echo $temp['gender'];?></td>
+                        <td><?php echo $temp['department_id'];?></td>
+                        <td><?php echo $temp['college_name'];?></td>
+                        <td><?php echo $temp['mobile'];?></td>
+                        <td><?php echo $temp['email'];?></td>
+                    </tr>
+                <?php }?>
+            </table>
+        </div>
+        <?php }?>
+    <?php }?>
+    <?php if (isset($_POST['msg'])){?>
+        <div class="container">
+            <div class="title"><?php echo $_SESSION['msg'];?></div>
+        </div>
+    <?php }elseif (isset($_POST['registered'])){?>
+        <form action="store.php" method="POST">
+            <div class="container">
+                <div class="heading">Enter Email subject and body</div>
+                <textarea name="subject" placeholder="Enter Subject"></textarea>
+                <textarea name="body" placeholder="Enter Email body"></textarea>
+                <input type="hidden" name="event" value="<?php echo $_POST['event'];?>">
+                <input type="submit" name="registered" value="Send">
+            </div>
+        </form>
+    <?php }elseif (isset($_POST['newsletter'])){?>
+        <form action="store.php" method="POST">
+            <div class="container">
+                <div class="heading">Enter Email subject and body</div>
+                <textarea name="subject" placeholder="Enter Subject"></textarea>
+                <textarea name="body" placeholder="Enter Email body"></textarea>
+                <input type="submit" name="Newsletter" value="Send">
+            </div>
+        </form>
+    <?php }elseif (isset($_POST['register'])){?>
+        <form action="store.php" method="POST" enctype="multipart/form-data">
 		<div class="container">
 			<div class="title">
 				<br><br>Register a New Event<br><br>
 			</div>
 			<div>
-                            <select name="dept" aria-placeholder="Select Department" required>
+                <select name="dept" aria-placeholder="Select Department" required>
 					<option name="" disabled selected>Select Department</option>
 					<option name="CE and IT Department" value="CE and IT Department">CE and IT Department</option>
 					<option name="Chemical Department" value="Chemical Department">Chemical Department</option>
@@ -65,33 +136,40 @@ session_start();
 				<input type="text" placeholder="Enter event name" name="event-name"required>
 			</div>
 			<div> 
-				<textarea placeholder="Enter problem statement for your event" name="pblmstmt" required></textarea>
+				<textarea placeholder="Enter problem statement for your event" name="statement" required></textarea>
 			</div>
 			<div>
-                            <input type="text" name="eventdate" placeholder="Enter event date and time" onfocus="(this.type='datetime-local')" onblur="(this.type='text')" required>
+                <input type="text" name="eventdate" placeholder="Enter event date and time"
+                       onfocus="(this.type='datetime-local')" onblur="(this.type='text')" required>
 			</div>
 			<div>
 				<input type="text" placeholder="Enter number of people required for this event" name="requiredppl" required>
 			</div>
 			<div>
-                            <input type="text" placeholder="Enter amount of fees" name="fees" required>
+                <input type="text" placeholder="Enter amount of fees" name="fees" required>
 			</div>
-                        <div>
-                            <input type="text" name="img" placeholder="Enter suitable image for event" onfocus="(this.type='file')" onblur="(this.type='text')" required>
-			</div>
+            <div>
+                <!--input type="text" placeholder="Enter suitable image for event" name="image" value="Enter suitable image for event" onfocus="(this.type='file')" onblur="(this.type='text')"-->
+                <input type="file" name="image" required>
+            </div>
 			<div>
 				<textarea placeholder="Enter rules with bullentin for event (e.g. 1. some rule 2.some rule)" name="rules" required></textarea>
 			</div>
 			<div>
-				<input type="submit" value="ADD"><br><br><br>
+                            <input type="submit" name="registerevent" value="ADD"><br><br><br>
 			</div>
 		</div>
 	</form>
+    <?php }
+        else{
+            header("Location:intermediate.php");
+        }
+    ?>
 	<hr>
 	<footer>
 		<div class="grid1">
 			<div class="items">
-				<a href="index.html" class="logo">TechFest<font color="#ff0066">.</font></a><br><br>
+                <a href="demo.php" class="logo">TechFest<font color="#ff0066">.</font></a><br><br>
 				<a href="http://twitter.com"><i class='fab fa-twitter-square fa-1.5x'></i></a>
 				<a href="http://facebook.com"><i class='fab fa-facebook-square fa-1.5x'></i></a>
 				<a href="http://youtube.com"><i class='fab fa-youtube fa-1.5x'></i></a>
@@ -101,9 +179,11 @@ session_start();
 			</div>
 			<div class="items">
 				<span class="title" id="ContactUs">Contact Us<br><br></span>
-				<span class="text"><i class='fas fa-map-marker-alt fa-2x'></i><br>Dharmsinh Desai University,<br>
-					College Road,<br>
-					Nadiad-387001.</span>
+                <a href="https://www.google.com/maps/place/DHARMSINH+DESAI+UNIVERSITY/@22.6802426,72.87801,17z/data=!3m1!4b1!4m5!3m4!1s0x395e5adf2c171355:0xe1e974ce083657fb!8m2!3d22.6802377!4d72.8801987">
+                    <span class="text"><i class='fas fa-map-marker-alt fa-2x'></i><br>Dharmsinh Desai University,<br>
+                        College Road,<br>
+                        Nadiad-387001.</span>
+                </a>
 				<span class="text"><br><br><i class='fas fa-phone-alt fa-2x'></i><br>+91 9876543210<br><br></span>
 				<span class="text"><i class='fas fa-at fa-2x'></i><br>Someone@example.com<br><br><br><br><br></span>
 			</div>

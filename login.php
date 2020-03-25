@@ -1,4 +1,4 @@
-
+<?php session_start();?>
 <html>
     <head>
         <title>TechFest 2020</title>
@@ -8,18 +8,18 @@
     <body>
         <header>
             <div class="header">
-                <a href="demo.html" class="logo">TechFest<font color="#ff0066">.</font></a>
+                <a href="demo.php" class="logo">TechFest<font color="#ff0066">.</font></a>
                 <div class="header-right">
-                    <a href="#Team" class="an">Team</a>
-                    <a href="#Sponser" class="an">Sponser</a>
-                    <a href="#Department" class="an">Department</a>
-                    <a href="#AboutUs" class="an">About Us</a>
+                    <a href="demo.php#Team" class="an">Team</a>
+                    <a href="demo.php#Sponser" class="an">Sponser</a>
+                    <a href="demo.php#Department" class="an">Department</a>
+                    <a href="demo.php#AboutUs" class="an">About Us</a>
                     <a href="#ContactUs" class="an">Contact Us</a>
                 </div>
             </div>
         </header>
         <hr>
-        <form action="registerevent.php" method="POST">
+        <form action="intermediate.php" method="POST">
             <section class="khokhu">
                 <span class="heading">
                     <span class="title">Login Page<br></span>Modify TechFest Events
@@ -39,7 +39,7 @@
         <footer>
 			<div class="grid1">
 				<div class="items">
-					<a href="index.html" class="logo">TechFest<font color="#ff0066">.</font></a><br><br>
+					<a href="demo.html" class="logo">TechFest<font color="#ff0066">.</font></a><br><br>
 					<a href="http://twitter.com"><i class='fab fa-twitter-square fa-1.5x'></i></a>
 					<a href="http://facebook.com"><i class='fab fa-facebook-square fa-1.5x'></i></a>
 					<a href="http://youtube.com"><i class='fab fa-youtube fa-1.5x'></i></a>

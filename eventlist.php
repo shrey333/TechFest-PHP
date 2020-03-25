@@ -1,16 +1,22 @@
 <?php
+    if(!isset($_GET['dept'])){
+    header("Location:demo.php");
+}
+    session_start();
     $r = array();
     $desc = array();
     $dept = null;
+    $count = 0;
     try{
 	$dbhandler = new PDO('mysql:host=127.0.0.1;dbname=hammer','root','');
 	$dbhandler->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
         if(isset($_GET['dept'])){
-            $query = $dbhandler->query("select event_name from dbapp_event where department_id='".$_GET['dept']."'");
+            $query = $dbhandler->query("select event_name, img from dbapp_event where department_id='".$_GET['dept']."'");
             $r = $query->fetchAll(PDO::FETCH_ASSOC);
+            $count = $query->rowCount();
             $query = $dbhandler->query("select description from dbapp_department where department='".$_GET['dept']."'");
             $desc = $query->fetchAll(PDO::FETCH_ASSOC);
-            $r = $r[0];
+            //print_r
             $desc = $desc[0];
             $dept = $_GET['dept'];
         }
@@ -32,12 +38,12 @@
     <body>
     <header>
         <div class="header">
-            <a href="demo.html" class="logo">TechFest<font color="#ff0066">.</font></a>
+            <a href="demo.php" class="logo">TechFest<font color="#ff0066">.</font></a>
             <div class="header-right">
-                <a href="demo.html#Team" class="an">Team</a>
-                <a href="demo.html#Sponser" class="an">Sponser</a>
-                <a href="demo.html#Department" class="an">Department</a>
-                <a href="demo.html#AboutUs" class="an">About Us</a>
+                <a href="demo.php#Team" class="an">Team</a>
+                <a href="demo.php#Sponser" class="an">Sponser</a>
+                <a href="demo.php#Department" class="an">Department</a>
+                <a href="demo.php#AboutUs" class="an">About Us</a>
                 <a href="#ContactUs" class="an">Contact Us</a>
             </div>
         </div>
@@ -58,8 +64,9 @@
             <br>
             
             <div class="grid">
-                    <?php foreach ($r as $i => $value){ ?>
-                    <a href="event.php?event=<?php echo $value; ?>" class="an"><div class="box"><i class='fas fa-code fa-5x'></i><br><?php echo $value; ?></div></a>
+                    <?php for($i = 0; $i < $count; $i++){ $temp = $r[$i]; ?>
+                    <a href="event.php?event=<?php echo $temp['event_name']; ?>" class="an"><div class="box"><img src="C:/User/Shrey/PycharmProjects/why/media/$temp['img']" height="70%"
+                                              width="90%"><br><br><br><?php echo $temp['event_name']; ?></div></a>
                     <?php }?>
             </div>
             

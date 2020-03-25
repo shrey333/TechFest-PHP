@@ -1,4 +1,8 @@
 <?php
+    if(!isset($_GET['event'])){
+    header("Location:demo.php");
+}
+    session_start();
     $r = array();
     $dept = null;
     try{
@@ -8,7 +12,8 @@
             $query = $dbhandler->query("select * from dbapp_event where event_name='".$_GET['event']."'");
             $r = $query->fetchAll(PDO::FETCH_ASSOC);
             $r = $r[0];
-            print_r ($r);
+            //print_r ($r);
+            $_SESSION['event_id'] = $r['event_id'];
         }
         else{
             echo "nothing";
