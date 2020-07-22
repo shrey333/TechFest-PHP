@@ -1,3 +1,4 @@
-<b><h1>TechFest-PHP</h1></b>
+<b><h1>TechFest (PHP edition)</h1></b>
 
-TechFest 
+TechFest is online web portal, where organizations can display, register a participant for their organizational's event. 
+TechFest is especially made for ease for university's techfest management
